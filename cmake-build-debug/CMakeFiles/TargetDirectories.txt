@@ -1,0 +1,4 @@
+/home/elian/cprojects/cop3404p2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/elian/cprojects/cop3404p2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/elian/cprojects/cop3404p2/cmake-build-debug/CMakeFiles/makefile.dir
+/home/elian/cprojects/cop3404p2/cmake-build-debug/CMakeFiles/cop3404p2.dir

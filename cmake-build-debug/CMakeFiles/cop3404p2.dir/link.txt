@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/cop3404p2.dir/main.c.o CMakeFiles/cop3404p2.dir/symbols.c.o CMakeFiles/cop3404p2.dir/instructions.c.o CMakeFiles/cop3404p2.dir/scoff.c.o -o cop3404p2 
