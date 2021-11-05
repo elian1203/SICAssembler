@@ -21,7 +21,7 @@ struct SymbolTable {
 };
 
 void parseLineToStrings(char *line, int lineNumber, char *str1, char *str2, char *str3, int *currentString,
-                        int *currentStringIndex, int *numWords, int *inString);
+                        int *currentStringIndex, int *numWords);
 
 void parseSymbolTable(FILE *file, struct SymbolTable *symbolTable);
 

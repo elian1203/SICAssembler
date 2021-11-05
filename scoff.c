@@ -127,7 +127,6 @@ void createObjectFile(FILE *inputFile, FILE *outputFile, struct SymbolTable *sym
     int currentString = 0;
     int currentStringIndex = 0;
     int numWords = 0;
-    int inString = 0;
 
     memset(str1, 0, 1024 * sizeof(char));
     memset(str2, 0, 1024 * sizeof(char));
@@ -141,8 +140,7 @@ void createObjectFile(FILE *inputFile, FILE *outputFile, struct SymbolTable *sym
             continue;
         }
 
-        parseLineToStrings(line, lineNumber, str1, str2, str3, &currentString, &currentStringIndex, &numWords,
-                           &inString);
+        parseLineToStrings(line, lineNumber, str1, str2, str3, &currentString, &currentStringIndex, &numWords);
 
         if (isSICInstruction(str1)) {
             getInstructionCode(symbolTable, code, symbolTable->memoryLocations[lineNumber - 1], str1, str2,

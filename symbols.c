@@ -249,8 +249,9 @@ void handleDirective(int lineNumber, struct SymbolTable *symbolTable, unsigned l
 
 
 void parseLineToStrings(char *line, int lineNumber, char *str1, char *str2, char *str3, int *currentString,
-                        int *currentStringIndex, int *numWords, int *inString) {
+                        int *currentStringIndex, int *numWords) {
     int charIndex = 0;
+    int inString = 0;
     char c;
     while (1) {
         c = line[charIndex];
@@ -272,7 +273,7 @@ void parseLineToStrings(char *line, int lineNumber, char *str1, char *str2, char
                 *currentStringIndex = 0;
             }
             break;
-        } else if ((c == ' ' && *inString == 0) || c == '\t' || c == '\r') {
+        } else if ((c == ' ' && inString == 0) || c == '\t' || c == '\r') {
             if (*currentStringIndex > 0) {
                 *currentString += 1;
                 *numWords += 1;
@@ -280,8 +281,8 @@ void parseLineToStrings(char *line, int lineNumber, char *str1, char *str2, char
             }
         } else {
             if (c == '\'') {
-                if (*inString) *inString = 0;
-                else *inString = 1;
+                if (inString) inString = 0;
+                else inString = 1;
             }
 
             if (*currentString == 0) {
@@ -317,7 +318,6 @@ void parseSymbolTable(FILE *file, struct SymbolTable *symbolTable) {
     int currentString = 0;
     int currentStringIndex = 0;
     int numWords = 0;
-    int inString = 0;
 
     memset(str1, 0, 1024 * sizeof(char));
     memset(str2, 0, 1024 * sizeof(char));
@@ -332,8 +332,7 @@ void parseSymbolTable(FILE *file, struct SymbolTable *symbolTable) {
             continue;
         }
 
-        parseLineToStrings(line, lineNumber, str1, str2, str3, &currentString, &currentStringIndex, &numWords,
-                           &inString);
+        parseLineToStrings(line, lineNumber, str1, str2, str3, &currentString, &currentStringIndex, &numWords);
 
 //        printf("1|%s| 2|%s| 3|%s| %d\n", str1, str2, str3, numWords);
 
