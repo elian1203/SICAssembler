@@ -1,5 +1,5 @@
-project2: instructions.o symbols.o scoff.o main.o
-	gcc -o project2 -Wall -O0 instructions.o symbols.o scoff.o main.o
+sicasm: instructions.o symbols.o scoff.o main.o
+	gcc -o sicasm -Wall -O0 instructions.o symbols.o scoff.o main.o
 
 main.o: main.c
 	gcc -c -Wall -O0 main.c
