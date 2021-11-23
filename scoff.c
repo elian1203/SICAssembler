@@ -2,48 +2,113 @@
 #include <stdlib.h>
 #include "scoff.h"
 
+int getInstructionFormat(char *opcode) {
+    if (opcode[0] == '+') {
+        return 4;
+    } else {
+        if (!strcmp(opcode, "FIX")
+            || !strcmp(opcode, "FLOAT")
+            || !strcmp(opcode, "HIO")
+            || !strcmp(opcode, "NORM")
+            || !strcmp(opcode, "SIO")
+            || !strcmp(opcode, "TIO")) {
+            return 1;
+        } else if (!strcmp(opcode, "ADDR")
+                   || !strcmp(opcode, "CLEAR")
+                   || !strcmp(opcode, "COMPR")
+                   || !strcmp(opcode, "DIVR")
+                   || !strcmp(opcode, "MULR")
+                   || !strcmp(opcode, "RMO")
+                   || !strcmp(opcode, "SHIFTL")
+                   || !strcmp(opcode, "SHIFTR")
+                   || !strcmp(opcode, "SUBR")
+                   || !strcmp(opcode, "SVC")
+                   || !strcmp(opcode, "TIXR")) {
+            return 2;
+        } else {
+            return 3;
+        }
+    }
+}
+
 void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned long memoryLocation, char *opcode,
                         char *operand, char **modifications, int *numModifications) {
     unsigned long hex = getOpcodeHex(opcode);
-    int numBytes = 3;
-    int length = snprintf(code, 1024, "T%06lX%02X%02lX", memoryLocation, numBytes, hex);
-    if (strlen(operand) > 0) {
-        unsigned long symbolLocation;
-        if (stringContainsChar(operand, ',')) {
-            int i = 0;
-            while (operand[i++] != ',');
-            // i - 1 is now the index of ','
-            operand[i - 1] = 0;
+    int numBytes = getInstructionFormat(opcode);
 
-            // add 8000 since there is a comma
-            symbolLocation = getSymbolMemoryLocation(symbolTable, operand) + 8000;
-            if (symbolLocation == 7999) {
-                printf("ERROR invalid symbol specified (%s)\n", operand);
-                exit(1);
-            }
-        } else {
-            symbolLocation = getSymbolMemoryLocation(symbolTable, operand);
-            if (symbolLocation == -1) {
-                printf("ERROR invalid symbol specified (%s)\n", operand);
-                exit(1);
-            }
+    int length = snprintf(code, 1024, "T%06lX%02X", memoryLocation, numBytes);
+
+    if (numBytes == 1) {
+        snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex);
+    } else if (numBytes == 2) {
+        int r1, r2;
+        switch (operand[0]) {
+            case 'A':
+                r1 = 0;
+                break;
+            case 'X':
+                r1 = 1;
+                break;
+            case 'L':
+                r1 = 2;
         }
+        switch (operand[2]) {
+            case 'B':
+                r2 = 3;
+                break;
+            case 'S':
+                r2 = 3;
+                break;
+            case 'T':
+                r2 = 5;
+            case 'F':
+                r2 = 6;
+        }
+        snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX%1X%1X", hex, r1, r2);
+    } else if (numBytes == 3) {
+        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex);
+        if (strlen(operand) > 0) {
+            unsigned long symbolLocation;
+            if (stringContainsChar(operand, ',')) {
+                int i = 0;
+                while (operand[i++] != ',');
+                // i - 1 is now the index of ','
+                operand[i - 1] = 0;
 
-        length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04lX",
-                           symbolLocation);
+                // add 8000 since there is a comma
+                symbolLocation = getSymbolMemoryLocation(symbolTable, operand) + 8000;
+                if (symbolLocation == 7999) {
+                    printf("ERROR invalid symbol specified (%s)\n", operand);
+                    exit(1);
+                }
+            } else {
+                symbolLocation = getSymbolMemoryLocation(symbolTable, operand);
+                if (symbolLocation == -1) {
+                    printf("ERROR invalid symbol specified (%s)\n", operand);
+                    exit(1);
+                }
+            }
 
-        // add necessary modification record
-        char *modification = malloc(19 * sizeof(char));
+            length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04lX",
+                               symbolLocation);
+
+            // add necessary modification record
+            char *modification = malloc(19 * sizeof(char));
 //        snprintf(modification, 18 * sizeof(char), "M%06lX%02X+%06lX\n", memoryLocation + 1, 4,
 //                 symbolTable->startingMemoryLocation);
-        snprintf(modification, 19 * sizeof(char), "M%06lX%02X+%-6s\r\n", memoryLocation + 1, 4,
-                 symbolTable->symbols[0].name);
+            snprintf(modification, 19 * sizeof(char), "M%06lX%02X+%-6s\r\n", memoryLocation + 1, 4,
+                     symbolTable->symbols[0].name);
 
-        modifications[*numModifications] = modification;
-        *numModifications += 1;
+            modifications[*numModifications] = modification;
+            *numModifications += 1;
+        } else {
+            length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04X", 0);
+        }
     } else {
-        length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04X", 0);
+
     }
+
+
 
     snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "\r\n");
 }
