@@ -21,7 +21,6 @@ int main(int argc, char *argv[]) {
 
     openFile(&inputFile, argv[1], "r");
     parseSymbolTable(inputFile, symbolTable);
-    printSymbolTable(symbolTable);
     fclose(inputFile);
 
     openFile(&inputFile, argv[1], "r");

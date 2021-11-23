@@ -14,4 +14,4 @@ instructions.o: instructions.c
 	gcc -c -Wall -O0 instructions.c
 
 clean:
-	rm -f *.o project2 *.obj
+	rm -f *.o sicasm *.obj

@@ -301,6 +301,35 @@ void parseLineToStrings(char *line, int lineNumber, char *str1, char *str2, char
     }
 }
 
+int getInstructionBytes(char *opcode) {
+    if (opcode[0] == '+') {
+        return 4;
+    } else {
+        if (!strcmp(opcode, "FIX")
+            || !strcmp(opcode, "FLOAT")
+            || !strcmp(opcode, "HIO")
+            || !strcmp(opcode, "NORM")
+            || !strcmp(opcode, "SIO")
+            || !strcmp(opcode, "TIO")) {
+            return 1;
+        } else if (!strcmp(opcode, "ADDR")
+                   || !strcmp(opcode, "CLEAR")
+                   || !strcmp(opcode, "COMPR")
+                   || !strcmp(opcode, "DIVR")
+                   || !strcmp(opcode, "MULR")
+                   || !strcmp(opcode, "RMO")
+                   || !strcmp(opcode, "SHIFTL")
+                   || !strcmp(opcode, "SHIFTR")
+                   || !strcmp(opcode, "SUBR")
+                   || !strcmp(opcode, "SVC")
+                   || !strcmp(opcode, "TIXR")) {
+            return 2;
+        } else {
+            return 3;
+        }
+    }
+}
+
 void parseSymbolTable(FILE *file, struct SymbolTable *symbolTable) {
     symbolTable->symbolsInTable = 0;
     symbolTable->tableSize = 0;
@@ -346,12 +375,12 @@ void parseSymbolTable(FILE *file, struct SymbolTable *symbolTable) {
             }
             if (symbolTable->firstInstruction == -1)
                 symbolTable->firstInstruction = currentMemoryLocation;
-            currentMemoryLocation += 3;
+            currentMemoryLocation += getInstructionBytes(str1);
         } else if (numWords == 2) {
             if (isSICInstruction(str1)) {
                 if (symbolTable->firstInstruction == -1)
                     symbolTable->firstInstruction = currentMemoryLocation;
-                currentMemoryLocation += 3;
+                currentMemoryLocation += getInstructionBytes(str1);
             } else if (isSICDirective(str1)) {
                 handleDirective(lineNumber, symbolTable, &currentMemoryLocation, str1, str2);
             } else if (isSICInstruction(str2)) {
@@ -362,7 +391,7 @@ void parseSymbolTable(FILE *file, struct SymbolTable *symbolTable) {
                 struct Symbol *symbol = createSymbol(str1, currentMemoryLocation);
                 addSymbolToTable(symbol, symbolTable);
 
-                currentMemoryLocation += 3;
+                currentMemoryLocation += getInstructionBytes(str2);
             } else {
                 printf("Line %d ERROR: Invalid line!\r\n", lineNumber);
                 exit(1);
@@ -384,12 +413,12 @@ void parseSymbolTable(FILE *file, struct SymbolTable *symbolTable) {
                 struct Symbol *symbol = createSymbol(str1, currentMemoryLocation);
                 addSymbolToTable(symbol, symbolTable);
 
-                currentMemoryLocation += 3;
+                currentMemoryLocation += getInstructionBytes(str2);
             } else if (isSICInstruction(str1)) {
                 if (symbolTable->firstInstruction == -1)
                     symbolTable->firstInstruction = currentMemoryLocation;
                 // no symbol
-                currentMemoryLocation += 3;
+                currentMemoryLocation += getInstructionBytes(str1);
             } else if (isSICDirective(str1)) {
                 // no symbol
                 handleDirective(lineNumber, symbolTable, &currentMemoryLocation, str1, str2);
