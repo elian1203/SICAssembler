@@ -39,8 +39,10 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
     int length = snprintf(code, 1024, "T%06lX%02X", memoryLocation, numBytes);
 
     if (numBytes == 1) {
-        snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex);
+        // format 1
+        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex);
     } else if (numBytes == 2) {
+        // format 2
         int r1, r2;
         switch (operand[0]) {
             case 'A':
@@ -64,8 +66,9 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
             case 'F':
                 r2 = 6;
         }
-        snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX%1X%1X", hex, r1, r2);
+        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX%1X%1X", hex, r1, r2);
     } else if (numBytes == 3) {
+        // TODO: format 3
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex);
         if (strlen(operand) > 0) {
             unsigned long symbolLocation;
@@ -105,9 +108,8 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
             length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04X", 0);
         }
     } else {
-
+        // TODO: format 4
     }
-
 
 
     snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "\r\n");
