@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    FILE *inputFile = NULL, *outputFile = NULL;
+    FILE *inputFile = NULL;
 
     // initialize table
     struct SymbolTable *symbolTable = NULL;
