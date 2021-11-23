@@ -31,6 +31,18 @@ int getInstructionFormat(char *opcode) {
     }
 }
 
+void openFile(FILE **file, char *fileName, char *mode) {
+    *file = fopen(fileName, mode);
+
+    if (*file == NULL) {
+        if (!strcmp(mode, "r"))
+            printf("File not found!\r\n");
+        else
+            printf("Could not open file for writing!\r\n");
+        exit(1);
+    }
+}
+
 void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned long memoryLocation, char *opcode,
                         char *operand, char **modifications, int *numModifications) {
     unsigned long hex = getOpcodeHex(opcode);
@@ -174,16 +186,16 @@ void getDirectiveCode(struct SymbolTable *symbolTable, char *code, unsigned long
     }
 }
 
-void createObjectFile(FILE *inputFile, FILE *outputFile, struct SymbolTable *symbolTable) {
+void createObjectFile(FILE *inputFile, char *outputFileName, struct SymbolTable *symbolTable) {
     int i;
-    fprintf(outputFile, "H");
-    fprintf(outputFile, "%-7s", symbolTable->programName);
-//    printf("%s", symbolTable->programName);
-    fprintf(outputFile, "%06lX", symbolTable->startingMemoryLocation);
-    fprintf(outputFile, "%06lX\r\n", symbolTable->totalMemoryUsage);
 
+    int numTextRecords = 0;
     int numModifications = 0;
+
+    char *textRecords[1024];
     char *modifications[1024];
+
+    memset(textRecords, 0, 1024 * sizeof(char *));
     memset(modifications, 0, 1024 * sizeof(char *));
 
     int lineNumber = 0;
@@ -212,22 +224,19 @@ void createObjectFile(FILE *inputFile, FILE *outputFile, struct SymbolTable *sym
         if (isSICInstruction(str1)) {
             getInstructionCode(symbolTable, code, symbolTable->memoryLocations[lineNumber - 1], str1, str2,
                                modifications, &numModifications);
-//            printf("%s\n", str1);
         } else if (isSICInstruction(str2)) {
-//            printf("%s\n", str2);
             getInstructionCode(symbolTable, code, symbolTable->memoryLocations[lineNumber - 1], str2, str3,
                                modifications, &numModifications);
         } else if (isSICDirective(str1)) {
-//            printf("%s\n", str1);
             getDirectiveCode(symbolTable, code, symbolTable->memoryLocations[lineNumber - 1], str1, str2);
         } else if (isSICDirective(str2)) {
-//            printf("%s\n", str2);
             getDirectiveCode(symbolTable, code, symbolTable->memoryLocations[lineNumber - 1], str2, str3);
         }
 
         if (strlen(code)) {
 //            printf("%s", code);
-            fprintf(outputFile, "%s", code);
+            char *temp = strdup(code);
+            textRecords[numTextRecords++] = temp;
         }
 
         // prepare strings for next line
@@ -235,6 +244,19 @@ void createObjectFile(FILE *inputFile, FILE *outputFile, struct SymbolTable *sym
         memset(str2, 0, 1024 * sizeof(char));
         memset(str3, 0, 1024 * sizeof(char));
         memset(code, 0, 1024 * sizeof(char));
+    }
+
+    // print to file
+    FILE *outputFile;
+    openFile(&outputFile, outputFileName, "w");
+
+    fprintf(outputFile, "H");
+    fprintf(outputFile, "%-7s", symbolTable->programName);
+    fprintf(outputFile, "%06lX", symbolTable->startingMemoryLocation);
+    fprintf(outputFile, "%06lX\r\n", symbolTable->totalMemoryUsage);
+    for (i = 0; i < numTextRecords; i++) {
+        fprintf(outputFile, "%s", textRecords[i]);
+        free(textRecords[i]);
     }
     for (i = 0; i < numModifications; i++) {
 //        printf("%s", modifications[i]);

@@ -24,8 +24,7 @@ int main(int argc, char *argv[]) {
     fclose(inputFile);
 
     openFile(&inputFile, argv[1], "r");
-    openFile(&outputFile, strcat(argv[1], ".obj"), "w");
-    createObjectFile(inputFile, outputFile, symbolTable);
+    createObjectFile(inputFile, strcat(argv[1], ".obj"), symbolTable);
     fclose(inputFile);
     fclose(outputFile);
 
@@ -33,16 +32,5 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void openFile(FILE **file, char *fileName, char *mode) {
-    *file = fopen(fileName, mode);
-
-    if (*file == NULL) {
-        if (!strcmp(mode, "r"))
-            printf("File not found!\r\n");
-        else
-            printf("Could not open file for writing!\r\n");
-        exit(1);
-    }
-}
 
 

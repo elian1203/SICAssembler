@@ -10,7 +10,8 @@ struct opCode {
 
 unsigned long getOpcodeHex(char *opcode);
 
-void createObjectFile(FILE *inputFile, FILE *outputFile, struct SymbolTable *symbolTable);
+void createObjectFile(FILE *inputFile, char *outputFileName, struct SymbolTable *symbolTable);
 
+void openFile(FILE **file, char *fileName, char *mode);
 
 #endif //COP3404P2_SCOFF_H
