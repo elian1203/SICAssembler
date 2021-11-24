@@ -75,6 +75,7 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
                 break;
             case 'T':
                 r2 = 5;
+                break;
             case 'F':
                 r2 = 6;
         }
