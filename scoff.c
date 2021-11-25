@@ -66,18 +66,20 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
             case 'L':
                 r1 = 2;
         }
-        switch (operand[2]) {
-            case 'B':
-                r2 = 3;
-                break;
-            case 'S':
-                r2 = 3;
-                break;
-            case 'T':
-                r2 = 5;
-                break;
-            case 'F':
-                r2 = 6;
+        if (strcmp(&operand[1], ",") == 0){
+            r2 = 0;
+        }else {
+            switch (operand[2]) {
+                case 'B':
+                case 'S':
+                    r2 = 3;
+                    break;
+                case 'T':
+                    r2 = 5;
+                    break;
+                case 'F':
+                    r2 = 6;
+            }
         }
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX%1X%1X", hex, r1, r2);
     } else if (numBytes == 3) {
