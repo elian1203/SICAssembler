@@ -116,10 +116,10 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         baseDisplacement = symbolLocation - symbolTable->startingMemoryLocation;
 
         if ((programCounterDisplacement >= 0 && programCounterDisplacement < 2047) ||
-            (programCounterDisplacement < 0 && programCounterDisplacement > -2048)) {
+            (-2048 < programCounterDisplacement <= 0)) {
             // use pc relative addressing
         } else if ((baseDisplacement >= 0 && baseDisplacement < 4095) ||
-                   (baseDisplacement < 0 && baseDisplacement > -4096)) {
+                   (-4096 < baseDisplacement <= 0)) {
             // use base relative addressing
         } else {
             // use something else
