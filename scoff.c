@@ -88,61 +88,85 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX%1X%1X", hex, r1, r2);
     } else if (numBytes == 3) {
         // TODO: format 3
-        int n = 0;
-        int i = 0;
-        if(operand[0] == '#'){
+        char *operandActual = operand;
+        int n;
+        int i;
+        if (operand[0] == '#') {
             n = 0;
             i = 1;
-        } else if(operand[0] == '@'){
+            operandActual = &operand[1];
+        } else if (operand[0] == '@') {
             n = 2;
             i = 0;
+            operandActual = &operand[1];
         }
-        hex = hex<<2;
+        hex = hex << 2;
         hex += n + i;
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex);
-        if (strlen(operand) > 0) {
-            unsigned long symbolLocation;
-            if (stringContainsChar(operand, ',')) {
-                int i = 0;
-                while (operand[i++] != ',');
-                // i - 1 is now the index of ','
-                operand[i - 1] = 0;
 
-                // add 8000 since there is a comma
-                symbolLocation = getSymbolMemoryLocation(symbolTable, operand) + 8000;
-                if (symbolLocation == 7999) {
-                    printf("ERROR invalid symbol specified (%s)\n", operand);
-                    exit(1);
-                }
-            } else {
-                symbolLocation = getSymbolMemoryLocation(symbolTable, operand);
-                if (symbolLocation == -1) {
-                    printf("ERROR invalid symbol specified (%s)\n", operand);
-                    exit(1);
-                }
-            }
+        // we have printed the first byte, opcode and n, i
+        // now we need to get our displacement and then add x,b,p,e appropriately
 
-            length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04lX",
-                               symbolLocation);
+        unsigned long symbolLocation = getSymbolMemoryLocation(symbolTable, operandActual);
 
-            // add necessary modification record
-            char *modification = malloc(19 * sizeof(char));
-//        snprintf(modification, 18 * sizeof(char), "M%06lX%02X+%06lX\n", memoryLocation + 1, 4,
-//                 symbolTable->startingMemoryLocation);
-            snprintf(modification, 19 * sizeof(char), "M%06lX%02X+%-6s\r\n", memoryLocation + 1, 4,
-                     symbolTable->symbols[0].name);
+        unsigned long programCounter, programCounterDisplacement, baseDisplacement;
 
-            modifications[*numModifications] = modification;
-            *numModifications += 1;
+        programCounter = memoryLocation + 3;
+        programCounterDisplacement = symbolLocation - programCounter;
+        baseDisplacement = symbolLocation - symbolTable->startingMemoryLocation;
+
+        if ((programCounterDisplacement >= 0 && programCounterDisplacement < 2047) ||
+            (programCounterDisplacement < 0 && programCounterDisplacement > -2048)) {
+            // use pc relative addressing
+        } else if ((baseDisplacement >= 0 && baseDisplacement < 4095) ||
+                   (baseDisplacement < 0 && baseDisplacement > -4096)) {
+            // use base relative addressing
         } else {
-            length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04X", 0);
+            // use something else
         }
+
+//        if (strlen(operand) > 0) {
+//            unsigned long symbolLocation;
+//            if (stringContainsChar(operand, ',')) {
+//                int i = 0;
+//                while (operand[i++] != ',');
+//                // i - 1 is now the index of ','
+//                operand[i - 1] = 0;
+//
+//                // add 8000 since there is a comma
+//                symbolLocation = getSymbolMemoryLocation(symbolTable, operand) + 8000;
+//                if (symbolLocation == 7999) {
+//                    printf("ERROR invalid symbol specified (%s)\n", operand);
+//                    exit(1);
+//                }
+//            } else {
+//                symbolLocation = getSymbolMemoryLocation(symbolTable, operand);
+//                if (symbolLocation == -1) {
+//                    printf("ERROR invalid symbol specified (%s)\n", operand);
+//                    exit(1);
+//                }
+//            }
+//
+//            length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04lX",
+//                               symbolLocation);
+//
+//            // add necessary modification record
+//            char *modification = malloc(19 * sizeof(char));
+//            snprintf(modification, 19 * sizeof(char), "M%06lX%02X+%-6s\r\n", memoryLocation + 1, 4,
+//                     symbolTable->symbols[0].name);
+//
+//            modifications[*numModifications] = modification;
+//            *numModifications += 1;
+//        } else {
+//            length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04X", 0);
+//        }
+
     } else {
         // TODO: format 4
     }
 
-
-    snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "\r\n");
+    snprintf(code
+             + (length * sizeof(char)), 1024 - (length * sizeof(char)), "\r\n");
 }
 
 void getDirectiveCode(struct SymbolTable *symbolTable, char *code, unsigned long memoryLocation, char *directive,
