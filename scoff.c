@@ -66,13 +66,17 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
             case 'L':
                 r1 = 2;
         }
-        if (strcmp(&operand[1], ",") == 0){
+
+        // if there is no second register specified just put 0, otherwise put the appropriate register number
+        if (operand[1] != ',') {
             r2 = 0;
-        }else {
+        } else {
             switch (operand[2]) {
                 case 'B':
-                case 'S':
                     r2 = 3;
+                    break;
+                case 'S':
+                    r2 = 4;
                     break;
                 case 'T':
                     r2 = 5;
