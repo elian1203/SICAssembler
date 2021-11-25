@@ -88,16 +88,17 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX%1X%1X", hex, r1, r2);
     } else if (numBytes == 3) {
         // TODO: format 3
-        int n;
-        int i;
-        if(operand[0] == '+'){
+        int n = 0;
+        int i = 0;
+        if(operand[0] == '#'){
             n = 0;
             i = 1;
         } else if(operand[0] == '@'){
-            n = 1;
-            n = 0;
+            n = 2;
+            i = 0;
         }
-
+        hex = hex<<2;
+        hex += n + i;
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex);
         if (strlen(operand) > 0) {
             unsigned long symbolLocation;
