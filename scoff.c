@@ -91,6 +91,7 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         char *operandActual = operand;
         int n;
         int i;
+        unsigned long x = 0, b = 0, p = 0, e = 0;
         if (operand[0] == '#') {
             n = 0;
             i = 1;
@@ -99,8 +100,20 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
             n = 2;
             i = 0;
             operandActual = &operand[1];
+        } else {
+            n = 2;
+            i = 1;
         }
-        hex = hex << 2;
+
+        int j = 0;
+
+        // SYMBOL,X -> SYMBOL\0X
+        if (stringContainsChar(operandActual, ',')) {
+            while (operandActual[j++] != ',');
+            operandActual[j - 1] = '\0';
+            x = 32768;
+        }
+
         hex += n + i;
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex);
 
@@ -115,15 +128,23 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         programCounterDisplacement = symbolLocation - programCounter;
         baseDisplacement = symbolLocation - symbolTable->startingMemoryLocation;
 
-        if ((programCounterDisplacement >= 0 && programCounterDisplacement < 2047) ||
-            (-2048 < programCounterDisplacement <= 0)) {
+        unsigned long finalDisplacement;
+
+        if ((programCounterDisplacement >= -2048) && (programCounterDisplacement < 2048)) {
             // use pc relative addressing
-        } else if ((baseDisplacement >= 0 && baseDisplacement < 4095) ||
-                   (-4096 < baseDisplacement <= 0)) {
+            p = 8192;
+            finalDisplacement = programCounterDisplacement;
+        } else if ((baseDisplacement >= 0 && baseDisplacement < 4095)) {
             // use base relative addressing
+            b = 16384;
+            finalDisplacement = baseDisplacement;
         } else {
             // use something else
+            finalDisplacement = symbolLocation;
         }
+
+        finalDisplacement += x + b + p + e;
+        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", finalDisplacement);
 
 //        if (strlen(operand) > 0) {
 //            unsigned long symbolLocation;
@@ -301,9 +322,9 @@ void createObjectFile(FILE *inputFile, char *outputFileName, struct SymbolTable 
         free(textRecords[i]);
     }
     for (i = 0; i < numModifications; i++) {
-//        printf("%s", modifications[i]);
         fprintf(outputFile, "%s", modifications[i]);
         free(modifications[i]);
     }
     fprintf(outputFile, "E%06lX\r\n", symbolTable->firstInstruction);
+    fclose(outputFile);
 }

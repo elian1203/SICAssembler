@@ -26,7 +26,6 @@ int main(int argc, char *argv[]) {
     openFile(&inputFile, argv[1], "r");
     createObjectFile(inputFile, strcat(argv[1], ".obj"), symbolTable);
     fclose(inputFile);
-    fclose(outputFile);
 
     freeSymbolTable(symbolTable);
     return 0;
