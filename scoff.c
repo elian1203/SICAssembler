@@ -120,15 +120,15 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         // we have printed the first byte, opcode and n, i
         // now we need to get our displacement and then add x,b,p,e appropriately
 
-        unsigned long symbolLocation = getSymbolMemoryLocation(symbolTable, operandActual);
+        long symbolLocation = getSymbolMemoryLocation(symbolTable, operandActual);
 
-        unsigned long programCounter, programCounterDisplacement, baseDisplacement;
+        long programCounter, programCounterDisplacement, baseDisplacement;
 
         programCounter = memoryLocation + 3;
         programCounterDisplacement = symbolLocation - programCounter;
         baseDisplacement = symbolLocation - symbolTable->startingMemoryLocation;
 
-        unsigned long finalDisplacement;
+        long finalDisplacement;
 
         if ((programCounterDisplacement >= -2048) && (programCounterDisplacement < 2048)) {
             // use pc relative addressing
