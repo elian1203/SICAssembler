@@ -48,6 +48,9 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
     unsigned long hex = getOpcodeHex(opcode);
     int numBytes = getInstructionFormat(opcode);
 
+    int i,n;
+    unsigned long x = 0, b = 0, p = 0, e = 0;
+
     int length = snprintf(code, 1024, "T%06lX%02X", memoryLocation, numBytes);
 
     if (numBytes == 1) {
@@ -89,9 +92,9 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
     } else if (numBytes == 3) {
         // TODO: format 3
         char *operandActual = operand;
-        int n;
-        int i;
-        unsigned long x = 0, b = 0, p = 0, e = 0;
+        //int n;
+        //int i;
+        //unsigned long x = 0, b = 0, p = 0, e = 0;
         if (operand[0] == '#') {
             n = 0;
             i = 1;
@@ -182,12 +185,38 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
 //            length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04X", 0);
 //        }
 
-    } else {
+    } else if(numBytes == 4){
         // TODO: format 4
+        char *operandActual = operand;
+        b = 0;
+        p = 0;
+
+        if (operand[0] == '#') {
+            n = 0;
+            i = 1;
+            operandActual = &operand[1];
+        } else if (operand[0] == '@') {
+            n = 2;
+            i = 0;
+            operandActual = &operand[1];
+        } else {
+            n = 2;
+            i = 1;
+        }
+
+        int j = 0;
+
+        hex += n + i;
+        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex); //first byte, opcode, n, i
+
+        if (stringContainsChar(operandActual, ',')) {
+            while (operandActual[j++] != ',');
+            operandActual[j - 1] = '\0';
+            x = 32768;
+        }
     }
 
-    snprintf(code
-             + (length * sizeof(char)), 1024 - (length * sizeof(char)), "\r\n");
+    snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "\r\n");
 }
 
 void getDirectiveCode(struct SymbolTable *symbolTable, char *code, unsigned long memoryLocation, char *directive,
