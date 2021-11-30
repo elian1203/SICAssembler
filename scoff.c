@@ -140,6 +140,9 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
                 // use pc relative addressing
                 p = 8192;
                 finalDisplacement = programCounterDisplacement;
+                if (programCounterDisplacement < 0){
+                    p += 4096;
+                }
             } else if ((baseDisplacement >= 0 && baseDisplacement < 4095)) {
                 // use base relative addressing
                 b = 16384;
