@@ -49,7 +49,7 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
     int numBytes = getInstructionFormat(opcode);
 
     int i,n;
-    unsigned long x = 0, b = 0, p = 0, e = 0;
+    long x = 0, b = 0, p = 0, e = 0;
 
     int length = snprintf(code, 1024, "T%06lX%02X", memoryLocation, numBytes);
 
@@ -92,9 +92,7 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
     } else if (numBytes == 3) {
         // TODO: format 3
         char *operandActual = operand;
-        //int n;
-        //int i;
-        //unsigned long x = 0, b = 0, p = 0, e = 0;
+
         if (operand[0] == '#') {
             n = 0;
             i = 1;
@@ -125,66 +123,35 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
 
         long symbolLocation = getSymbolMemoryLocation(symbolTable, operandActual);
 
-        long programCounter, programCounterDisplacement, baseDisplacement;
-
-        programCounter = memoryLocation + 3;
-        programCounterDisplacement = symbolLocation - programCounter;
-        baseDisplacement = symbolLocation - symbolTable->baseLocation;
-
-        long finalDisplacement;
-
-        if ((programCounterDisplacement >= -2048) && (programCounterDisplacement < 2048)) {
-            // use pc relative addressing
-            p = 8192;
-            finalDisplacement = programCounterDisplacement;
-        } else if ((baseDisplacement >= 0 && baseDisplacement < 4095)) {
-            // use base relative addressing
-            b = 16384;
-            finalDisplacement = baseDisplacement;
+        if (n == 0 && i == 1 && symbolLocation == -1) {
+            // use direct memory address provided
+            long memoryAddressInput = strtol(operandActual, NULL, 16);
+            length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", memoryAddressInput);
         } else {
-            // use something else
-            finalDisplacement = symbolLocation;
+            long programCounter, programCounterDisplacement, baseDisplacement;
+
+            programCounter = memoryLocation + 3;
+            programCounterDisplacement = symbolLocation - programCounter;
+            baseDisplacement = symbolLocation - symbolTable->baseLocation;
+
+            long finalDisplacement;
+
+            if ((programCounterDisplacement >= -2048) && (programCounterDisplacement < 2048)) {
+                // use pc relative addressing
+                p = 8192;
+                finalDisplacement = programCounterDisplacement;
+            } else if ((baseDisplacement >= 0 && baseDisplacement < 4095)) {
+                // use base relative addressing
+                b = 16384;
+                finalDisplacement = baseDisplacement;
+            } else {
+                // use something else
+                finalDisplacement = symbolLocation;
+            }
+
+            finalDisplacement += x + b + p + e;
+            length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", finalDisplacement);
         }
-
-        finalDisplacement += x + b + p + e;
-        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", finalDisplacement);
-
-//        if (strlen(operand) > 0) {
-//            unsigned long symbolLocation;
-//            if (stringContainsChar(operand, ',')) {
-//                int i = 0;
-//                while (operand[i++] != ',');
-//                // i - 1 is now the index of ','
-//                operand[i - 1] = 0;
-//
-//                // add 8000 since there is a comma
-//                symbolLocation = getSymbolMemoryLocation(symbolTable, operand) + 8000;
-//                if (symbolLocation == 7999) {
-//                    printf("ERROR invalid symbol specified (%s)\n", operand);
-//                    exit(1);
-//                }
-//            } else {
-//                symbolLocation = getSymbolMemoryLocation(symbolTable, operand);
-//                if (symbolLocation == -1) {
-//                    printf("ERROR invalid symbol specified (%s)\n", operand);
-//                    exit(1);
-//                }
-//            }
-//
-//            length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04lX",
-//                               symbolLocation);
-//
-//            // add necessary modification record
-//            char *modification = malloc(19 * sizeof(char));
-//            snprintf(modification, 19 * sizeof(char), "M%06lX%02X+%-6s\r\n", memoryLocation + 1, 4,
-//                     symbolTable->symbols[0].name);
-//
-//            modifications[*numModifications] = modification;
-//            *numModifications += 1;
-//        } else {
-//            length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04X", 0);
-//        }
-
     } else{
         // TODO: format 4
         char *operandActual = operand;
