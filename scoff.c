@@ -129,7 +129,7 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
 
         programCounter = memoryLocation + 3;
         programCounterDisplacement = symbolLocation - programCounter;
-        baseDisplacement = symbolLocation - symbolTable->startingMemoryLocation;
+        baseDisplacement = symbolLocation - symbolTable->baseLocation;
 
         long finalDisplacement;
 

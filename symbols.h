@@ -18,6 +18,7 @@ struct SymbolTable {
     char *programName;
     struct Symbol *symbols;
     unsigned long memoryLocations[2048];
+    unsigned long baseLocation;
 };
 
 void parseLineToStrings(char *line, int lineNumber, char *str1, char *str2, char *str3, int *currentString,

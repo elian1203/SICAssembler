@@ -6,7 +6,7 @@ int isSICInstruction(char *input) {
     if (input[0] == '+') {
         input = &input[1];
     }
-    printf("%s\n", input);
+
     const char *instructions[] = {
             "ADD",
             "ADDF",
@@ -82,7 +82,7 @@ int isSICInstruction(char *input) {
 }
 
 int isSICDirective(char *input) {
-    const char *directives[] = {"START", "END", "BYTE", "WORD", "RESB", "RESW", "RESR", "EXPORTS", 0};
+    const char *directives[] = {"START", "END", "BYTE", "WORD", "RESB", "RESW", "RESR", "EXPORTS", "BASE", 0};
     int i = 0;
     while (directives[i]) {
         if (strcmp(directives[i], input) == 0) {

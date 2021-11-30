@@ -244,6 +244,8 @@ void handleDirective(int lineNumber, struct SymbolTable *symbolTable, unsigned l
         *currentMemoryLocation += words * 3;
     } else if (!strcmp(directive, "RESR") || !strcmp(directive, "EXPORTS")) {
         *currentMemoryLocation += 3;
+    } else if (!strcmp(directive, "BASE")) {
+        symbolTable->baseLocation = *currentMemoryLocation;
     }
 }
 
