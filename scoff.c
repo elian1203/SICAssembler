@@ -127,6 +127,8 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
             // use direct memory address provided
             long memoryAddressInput = strtol(operandActual, NULL, 16);
             length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", memoryAddressInput);
+        } else if (symbolLocation == -1) {
+            length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04X", 0);
         } else {
             long programCounter, programCounterDisplacement, baseDisplacement;
 
