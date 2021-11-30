@@ -3,6 +3,10 @@
 #include "scoff.h"
 
 int isSICInstruction(char *input) {
+    if (input[0] == '+') {
+        input = &input[1];
+    }
+    printf("%s\n", input);
     const char *instructions[] = {
             "ADD",
             "ADDF",
