@@ -109,7 +109,6 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         }
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX%1X%1X", hex, r1, r2);
     } else if (numBytes == 3) {
-        // TODO: format 3
         char *operandActual = operand;
 
         if (operand[0] == '#') {
@@ -144,7 +143,7 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
 
         if (n == 0 && i == 1 && symbolLocation == -1) {
             // use direct memory address provided
-            long memoryAddressInput = strtol(operandActual, NULL, 16);
+            long memoryAddressInput = strtol(operandActual, NULL, 10);
             length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", memoryAddressInput);
         } else if (symbolLocation == -1) {
             length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04X", 0);
@@ -179,8 +178,6 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
     } else {
         // TODO: format 4
         char *operandActual = operand;
-        b = 0;
-        p = 0;
 
         if (operand[0] == '#') {
             n = 0;
@@ -197,21 +194,27 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
 
         int j = 0;
 
-        hex += n + i;
-        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX",
-                           hex); //first byte, opcode, n, i
-        b = p = 0;
-        e = 1;
-
+        // SYMBOL,X -> SYMBOL\0X
         if (stringContainsChar(operandActual, ',')) {
             while (operandActual[j++] != ',');
             operandActual[j - 1] = '\0';
-            x = 32768;
+            x = 8388608;
         }
 
-        long symbolLocation = getSymbolMemoryLocation(symbolTable, operandActual);
+        hex += n + i;
+        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex);//opcode, n , i
+        e = 1048576;
 
-        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%08lX", symbolLocation);
+        long symbolLocation = getSymbolMemoryLocation(symbolTable, operand);
+
+        if (n == 0 && i == 1 && symbolLocation == -1) {
+            // use direct memory address provided
+            long memoryAddressInput = strtol(operandActual, NULL, 10);
+            length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", memoryAddressInput + e);
+        } else{
+            symbolLocation += e + x;length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%05lX", symbolLocation);
+
+        }
     }
 
     snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "\r\n");
