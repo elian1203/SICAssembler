@@ -45,7 +45,15 @@ void openFile(FILE **file, char *fileName, char *mode) {
 
 void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned long memoryLocation, char *opcode,
                         char *operand, char **modifications, int *numModifications) {
-    unsigned long hex = getOpcodeHex(opcode);
+
+    char* opcodeActual;
+    if(opcode[0] == '+'){
+        opcodeActual = &opcode[1];
+    } else{
+        opcodeActual = opcode;
+    }
+
+    unsigned long hex = getOpcodeHex(opcodeActual);
     int numBytes = getInstructionFormat(opcode);
 
     int i, n;
@@ -176,7 +184,6 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
             length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", finalDisplacement);
         }
     } else {
-        // TODO: format 4
         char *operandActual = operand;
 
         if (operand[0] == '#') {
@@ -212,7 +219,8 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
             long memoryAddressInput = strtol(operandActual, NULL, 10);
             length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", memoryAddressInput + e);
         } else{
-            symbolLocation += e + x;length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%05lX", symbolLocation);
+            symbolLocation += e + x;
+            length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%05lX", symbolLocation);
 
         }
     }
