@@ -185,7 +185,7 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
 //            length += snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "%04X", 0);
 //        }
 
-    } else if(numBytes == 4){
+    } else{
         // TODO: format 4
         char *operandActual = operand;
         b = 0;
@@ -208,12 +208,19 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
 
         hex += n + i;
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex); //first byte, opcode, n, i
+        b = p = 0;
+        e = 1;
 
         if (stringContainsChar(operandActual, ',')) {
             while (operandActual[j++] != ',');
             operandActual[j - 1] = '\0';
             x = 32768;
         }
+
+        long symbolLocation = getSymbolMemoryLocation(symbolTable, operandActual);
+
+        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%08lX", symbolLocation);
+
     }
 
     snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "\r\n");

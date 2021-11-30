@@ -1,0 +1,11 @@
+Pass 1 check for plus, if yes then locationcounter += 4
+Check the format to see how many bytes to add to counter
+- If 3/4 then 3
+- This is only if there's no plus sign
+Try creating a lot of booleans
+Store location counter in a struct, location jump not 3 anymore
+X A and S are registers that need to be hardcoded
+- Values are in the files
+- {"0","A"},{"1","X"},{"2","L"},{"2","B"},{"4","S"},{"5","T"},{"1","F"}
+Format 3: to find B bits, address of current opcode - base
+- For p bit: address of current operand - next location address in location counter
