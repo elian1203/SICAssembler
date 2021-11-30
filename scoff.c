@@ -48,7 +48,7 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
     unsigned long hex = getOpcodeHex(opcode);
     int numBytes = getInstructionFormat(opcode);
 
-    int i,n;
+    int i, n;
     long x = 0, b = 0, p = 0, e = 0;
 
     int length = snprintf(code, 1024, "T%06lX%02X", memoryLocation, numBytes);
@@ -140,7 +140,7 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
                 // use pc relative addressing
                 p = 8192;
                 finalDisplacement = programCounterDisplacement;
-                if (programCounterDisplacement < 0){
+                if (programCounterDisplacement < 0) {
                     p += 4096;
                 }
             } else if ((baseDisplacement >= 0 && baseDisplacement < 4095)) {
@@ -155,7 +155,7 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
             finalDisplacement += x + b + p + e;
             length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", finalDisplacement);
         }
-    } else{
+    } else {
         // TODO: format 4
         char *operandActual = operand;
         b = 0;
@@ -177,7 +177,8 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         int j = 0;
 
         hex += n + i;
-        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex); //first byte, opcode, n, i
+        length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX",
+                           hex); //first byte, opcode, n, i
         b = p = 0;
         e = 1;
 
@@ -190,7 +191,6 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         long symbolLocation = getSymbolMemoryLocation(symbolTable, operandActual);
 
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%08lX", symbolLocation);
-
     }
 
     snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "\r\n");
@@ -233,6 +233,8 @@ void getDirectiveCode(struct SymbolTable *symbolTable, char *code, unsigned long
             printf("ERROR invalid symbol specified (%s)\n", operand);
             exit(1);
         }
+    } else if (!strcmp(directive, "BASE")) {
+        symbolTable->baseLocation = getSymbolMemoryLocation(symbolTable, operand);
     }
 
     if (bytesAppended > 0) {
