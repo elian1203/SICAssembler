@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "scoff.h"
 
 int getInstructionFormat(char *opcode) {
@@ -45,13 +46,18 @@ void openFile(FILE **file, char *fileName, char *mode) {
 
 void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned long memoryLocation, char *opcode,
                         char *operand, char **modifications, int *numModifications) {
-
+bool Plus_Sign = false;
+bool Hash = false;
+bool at =false;
     char* opcodeActual;
     if(opcode[0] == '+'){
+        Plus_Sign = true;
         opcodeActual = &opcode[1];
     } else{
+        Plus_Sign = false;
         opcodeActual = opcode;
     }
+
 
     unsigned long hex = getOpcodeHex(opcodeActual);
     int numBytes = getInstructionFormat(opcode);
@@ -122,10 +128,13 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         if (operand[0] == '#') {
             n = 0;
             i = 1;
+         Hash = true;
             operandActual = &operand[1];
+
         } else if (operand[0] == '@') {
             n = 2;
             i = 0;
+            at = true;
             operandActual = &operand[1];
         } else {
             n = 2;
@@ -200,6 +209,9 @@ void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned lo
         }
 
         int j = 0;
+
+
+
 
         // SYMBOL,X -> SYMBOL\0X
         if (stringContainsChar(operandActual, ',')) {
