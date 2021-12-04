@@ -181,7 +181,8 @@ bool at =false;
                 Modification[k+10]=start_address_test[k];
             }
             Modification[17]='\0';
-           // Addrecords(Mrecord,Modification);
+            modifications[numModifications] = &Modification;
+
         }
 
 
