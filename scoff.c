@@ -155,6 +155,35 @@ bool at =false;
 
         // we have printed the first byte, opcode and n, i
         // now we need to get our displacement and then add x,b,p,e appropriately
+        if (Plus_Sign == true && Hash == false && at == false)
+        {
+            char Modification[17];
+            char Address_Modification[7];
+            memset(Modification,'\0',17*sizeof(char));
+            memset(Address_Modification,'\0',17*sizeof(char));
+            Modification[0]='M';
+            int modification_address = 0;
+            modification_address = memoryLocation;
+            modification_address +=1;
+            sprintf(Address_Modification,"%06X",modification_address);
+            for(int k=0;k<6;k++)
+            {
+                Modification[k+1]=Address_Modification[k];
+            }
+            Modification[7]='0';
+            Modification[8]='5';
+            Modification[9]='+';
+            char *start_address_test;
+            start_address_test=symbolTable[0].programName;
+            for(int k=0;k<6;k++)
+            {
+
+                Modification[k+10]=start_address_test[k];
+            }
+            Modification[17]='\0';
+           // Addrecords(Mrecord,Modification);
+        }
+
 
         long symbolLocation = getSymbolMemoryLocation(symbolTable, operandActual);
 
