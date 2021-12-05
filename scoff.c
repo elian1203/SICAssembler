@@ -47,8 +47,8 @@ void openFile(FILE **file, char *fileName, char *mode) {
 void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned long memoryLocation, char *opcode,
                         char *operand, char **modifications, int *numModifications) {
 bool Plus_Sign = false;
-bool Hash = false;
-bool at =false;
+bool hash = false;
+bool atSymbol =false;
     char* opcodeActual;
     if(opcode[0] == '+'){
         Plus_Sign = true;
@@ -128,13 +128,13 @@ bool at =false;
         if (operand[0] == '#') {
             n = 0;
             i = 1;
-         Hash = true;
+            hash = true;
             operandActual = &operand[1];
 
         } else if (operand[0] == '@') {
             n = 2;
             i = 0;
-            at = true;
+            atSymbol = true;
             operandActual = &operand[1];
         } else {
             n = 2;
@@ -155,7 +155,7 @@ bool at =false;
 
         // we have printed the first byte, opcode and n, i
         // now we need to get our displacement and then add x,b,p,e appropriately
-        if (Plus_Sign == true && Hash == false && at == false)
+        if (Plus_Sign == true && hash == false && atSymbol == false)
         {
             char Modification[17];
             char Address_Modification[7];
@@ -181,10 +181,12 @@ bool at =false;
                 Modification[k+10]=start_address_test[k];
             }
             Modification[17]='\0';
-            modifications[numModifications] = &Modification;
+            //modifications[numModifications] = &Modification;
+            //code above causes errors
 
+            //TODO: Afsara mod record implementation error
+            modifications[*numModifications] = Modification; //temporary fix
         }
-
 
         long symbolLocation = getSymbolMemoryLocation(symbolTable, operandActual);
 
