@@ -46,15 +46,16 @@ void openFile(FILE **file, char *fileName, char *mode) {
 
 void getInstructionCode(struct SymbolTable *symbolTable, char *code, unsigned long memoryLocation, char *opcode,
                         char *operand, char **modifications, int *numModifications) {
-bool Plus_Sign = false;
+bool plusSign = false;
 bool hash = false;
 bool atSymbol =false;
+
     char* opcodeActual;
     if(opcode[0] == '+'){
-        Plus_Sign = true;
+        plusSign = true;
         opcodeActual = &opcode[1];
     } else{
-        Plus_Sign = false;
+        plusSign = false;
         opcodeActual = opcode;
     }
 
@@ -155,7 +156,7 @@ bool atSymbol =false;
 
         // we have printed the first byte, opcode and n, i
         // now we need to get our displacement and then add x,b,p,e appropriately
-        if (Plus_Sign == true && hash == false && atSymbol == false)
+        if (plusSign == true && hash == false && atSymbol == false)
         {
             char Modification[17];
             char Address_Modification[7];
