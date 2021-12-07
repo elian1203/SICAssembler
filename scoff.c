@@ -243,9 +243,6 @@ bool atSymbol =false;
 
         int j = 0;
 
-
-
-
         // SYMBOL,X -> SYMBOL\0X
         if (stringContainsChar(operandActual, ',')) {
             while (operandActual[j++] != ',');
