@@ -428,7 +428,7 @@ void parseSymbolTable(FILE *file, struct SymbolTable *symbolTable) {
             }
         }
 
-        if (currentMemoryLocation > 32768) {
+        if (currentMemoryLocation > 1048576) {
             printf("Line %d ERROR: SIC memory exceeded!\r\n", lineNumber);
             exit(1);
         }
@@ -441,7 +441,7 @@ void parseSymbolTable(FILE *file, struct SymbolTable *symbolTable) {
     }
 
     // one final check for memory exceed
-    if (currentMemoryLocation + symbolTable->startingMemoryLocation > 32768) {
+    if (currentMemoryLocation + symbolTable->startingMemoryLocation > 1048576) {
         printf("Line %d ERROR: SIC memory exceeded!\r\n", lineNumber);
         exit(1);
     }
