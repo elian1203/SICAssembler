@@ -69,10 +69,10 @@ bool atSymbol =false;
     int length = snprintf(code, 1024, "T%06lX%02X", memoryLocation, numBytes);
 
     if (numBytes == 1) {
-        // format 1
+        // FORMAT 1 ---------------------------------------------------------------------------------------------------
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX", hex);
     } else if (numBytes == 2) {
-        // format 2
+        // FORMAT 2 ---------------------------------------------------------------------------------------------------
         int r1, r2;
         switch (operand[0]) {
             case 'A':
@@ -95,7 +95,6 @@ bool atSymbol =false;
             case 'F':
                 r1 = 6;
         }
-
         // if there is no second register specified just put 0, otherwise put the appropriate register number
         if (operand[1] != ',') {
             r2 = 0;
@@ -124,6 +123,7 @@ bool atSymbol =false;
         }
         length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%02lX%1X%1X", hex, r1, r2);
     } else if (numBytes == 3) {
+        // FORMAT 3 ---------------------------------------------------------------------------------------------------
         char *operandActual = operand;
 
         if (operand[0] == '#') {
@@ -226,6 +226,7 @@ bool atSymbol =false;
             length += snprintf(code + length * sizeof(char), 1024 - length * sizeof(char), "%04lX", finalDisplacement);
         }
     } else {
+        // FORMAT 4 ---------------------------------------------------------------------------------------------------
         char *operandActual = operand;
 
         if (operand[0] == '#') {
@@ -270,6 +271,7 @@ bool atSymbol =false;
     snprintf(code + (length * sizeof(char)), 1024 - (length * sizeof(char)), "\r\n");
 }
 
+//
 void getDirectiveCode(struct SymbolTable *symbolTable, char *code, unsigned long memoryLocation, char *directive,
                       char *operand) {
     char append[128];
