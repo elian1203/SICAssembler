@@ -186,6 +186,7 @@ bool atSymbol =false;
 
             //TODO: Afsara mod record implementation error
             modifications[*numModifications] = Modification; //temporary fix
+            *numModifications += 1;
         }
 
         long symbolLocation = getSymbolMemoryLocation(symbolTable, operandActual);
